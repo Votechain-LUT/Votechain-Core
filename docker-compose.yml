@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  database:
+    container_name: db
+    build: ./tmp_db
+    ports:
+      - 1433:1433
+    expose:
+      - 1433
+
+  backend:
+    container_name: core-api
+    build: ./src
+    expose:
+      - 8000
+    ports:
+      - 8000:8000
+    environment:
+      - DATABASE_HOST=database
+    depends_on:
+      - database
