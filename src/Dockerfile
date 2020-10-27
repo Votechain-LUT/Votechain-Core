@@ -1,5 +1,7 @@
 FROM python:3.9.0-alpine
 
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH /usr/local/bin
 ENV DJANGO_SUPERUSER_PASSWORD admin
 ENV DJANGO_SUPERUSER_USERNAME admin
 ENV DJANGO_SUPERUSER_EMAIL admin@admin.com
@@ -23,4 +25,4 @@ COPY . .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-CMD [ "python", "manage.py", "runserver" ]
+CMD [ "./entrypoint.sh" ]
