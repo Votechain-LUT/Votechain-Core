@@ -179,3 +179,4 @@ About
 .vscode
 
 sawtooth/
+/caddy*

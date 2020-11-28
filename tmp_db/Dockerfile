@@ -11,7 +11,7 @@ RUN mkdir -p /usr/config
 
 WORKDIR /usr/config
 
-COPY . /usr/config
+COPY . .
 
 
 

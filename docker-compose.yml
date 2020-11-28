@@ -13,10 +13,15 @@ services:
     container_name: core-api
     build: ./src
     expose:
-      - 8000
+      - 80
+      - 443
     ports:
-      - 8000:8000
+      - 80:80
+      - 443:443
     environment:
       - DATABASE_HOST=database
+    volumes:
+      - ./caddy_volume:/data
+      - ./caddy_config:/config
     depends_on:
       - database
