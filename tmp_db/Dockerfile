@@ -13,4 +13,6 @@ WORKDIR /usr/config
 
 COPY . /usr/config
 
-ENTRYPOINT ["./entrypoint.sh"]
+
+
+ENTRYPOINT ["bash", "./entrypoint.sh"]
