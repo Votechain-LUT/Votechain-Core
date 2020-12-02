@@ -1,15 +1,7 @@
 FROM caddy:2.1.1-alpine
 
 ENV PYTHONUNBUFFERED 1
-ENV PYTHONPATH /usr/local/bin
-ENV DJANGO_SUPERUSER_PASSWORD admin
-ENV DJANGO_SUPERUSER_USERNAME admin
-ENV DJANGO_SUPERUSER_EMAIL admin@admin.com
-ENV DATABASE_USER sa
-ENV DATABASE_PASSWORD Asdf1234
 ENV ACCEPT_EULA Y
-
-EXPOSE 8000
 
 RUN apk update
 RUN apk add --no-cache g++
@@ -28,6 +20,7 @@ COPY Caddyfile /etc/caddy/Caddyfile
 
 WORKDIR /usr/src/
 
+RUN mkdir -p static
 COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt

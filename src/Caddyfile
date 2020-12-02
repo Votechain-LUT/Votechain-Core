@@ -3,7 +3,6 @@ localhost
 route {
     file_server /static/* {
         root /usr/src
-        browse
     }
     reverse_proxy localhost:8000
 }
