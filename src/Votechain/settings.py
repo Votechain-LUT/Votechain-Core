@@ -28,6 +28,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 2592000  # 30 days, I used ASP.NET default value
 
 # Application definition
 
@@ -83,8 +86,8 @@ DATABASES = {
         'TRUSTED_CONNECTION': 'No',
         'HOST': os.environ['DATABASE_HOST'] or 'localhost',
         'PORT': '1433',
-        'USER': 'sa',
-        'PASSWORD': 'Asdf1234',
+        'USER': os.environ['DATABASE_USER'],
+        'PASSWORD': os.environ['DATABASE_PASSWORD'],
         'AUTOCOMMIT': True,
         'NAME': 'votechain',
         'OPTIONS': {
@@ -144,4 +147,5 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '../static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')

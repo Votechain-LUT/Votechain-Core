@@ -4,19 +4,29 @@ services:
   database:
     container_name: db
     build: ./tmp_db
+    environment:
+      - SA_PASSWORD=${DATABASE_PASSWORD}
+      - BACKUP_FILE=${BACKUP_FILE}
+      - MSSQL_BACKUP_DIR=${MSSQL_BACKUP_DIR}
     ports:
       - 1433:1433
-    expose:
-      - 1433
 
   backend:
     container_name: core-api
     build: ./src
-    expose:
-      - 8000
-    ports:
-      - 8000:8000
     environment:
+      - PYTHONPATH=${PYTHONPATH}
+      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}
+      - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME}
+      - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_HOST=database
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./caddy_volume:/data
+      - ./caddy_config:/config
     depends_on:
       - database
