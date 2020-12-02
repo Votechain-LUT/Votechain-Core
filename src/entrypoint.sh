@@ -10,6 +10,9 @@ while [[ $STATUS -ne 52 ]] && [[ $i -lt 60 ]]; do
 	STATUS=$?
 done
 
+echo "MIGRATING"
 python manage.py migrate --noinput
+echo "CREATING SUPERUSER"
 python manage.py createsuperuser --noinput
+echo "STARTING UP HTTP LISTENER"
 python manage.py runserver 0.0.0.0:8000
