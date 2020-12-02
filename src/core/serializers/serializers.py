@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from core.models.poll import Poll
+from core.models.models import Poll, Candidate, Candidate_result, Vote
+
 
 class PollSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
