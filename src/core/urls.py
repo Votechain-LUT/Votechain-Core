@@ -16,10 +16,26 @@ Including another URLconf
 from django.contrib import admin
 from django.views.defaults import page_not_found
 from django.urls import path, include
+from django.conf.urls import url
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework import permissions
 from core.views import admin_poll_view
 
 from core.admin import admin_view
 admin.site.admin_view = admin_view
+
+api_info = openapi.Info(
+    title="Votechain Core API",
+    default_version='v0.0.1',
+    license=openapi.License(name="MIT License"),
+)
+
+schema_view = get_schema_view(
+   api_info,
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
 
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
@@ -31,4 +47,7 @@ urlpatterns = [
     path('poll/create/', admin_poll_view.AdminCreatePoll.as_view(), name='admin_create_poll'),
     path('poll/start/', admin_poll_view.AdminStartPoll.as_view(), name='admin_start_poll'),
     path('poll/list/', admin_poll_view.AdminListPoll.as_view(), name='admin_list_poll'),
+    url(r'^swagger(?P<format>\.json|\.yaml)$',
+        schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

@@ -8,4 +8,4 @@ WORKDIR /usr/config
 
 COPY . .
 
-ENTRYPOINT ["bash", "./entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "./entrypoint.sh"]
