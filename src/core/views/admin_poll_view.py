@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status, generics, authentication, permissions
-from core.models.poll import Poll
-from core.serializers.poll_serializer import PollSerializer
+from core.models.models import *
+from core.serializers.serializers import *
 
 
 class AdminListPoll(generics.ListAPIView):

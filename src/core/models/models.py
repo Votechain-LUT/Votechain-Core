@@ -8,24 +8,17 @@ class Poll(models.Model):
     start = models.DateTimeField(blank=True, db_index=True, null=True)
     end = models.DateTimeField(blank=False)
 
-class Voter(models.Model):
+class Candidate(models.Model):
     id = models.BigAutoField(primary_key=True)
-
-
-class Vote(models.Model):
-    answer = models.TextField(max_length=1024, blank=False)
-    voter = models.ForeignKey(User, on_delete=models.CASCADE)
-    poll = models.models.ForeignKey(Poll, on_delete=models.CASCADE)
-
-
-
-class Canidate(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=500)
     poll = models.ForeignKey (Poll, on_delete=models.CASCADE)
     
- 
+class Candidate_result():
 
-class Candidate_result(models.Model):
-    numberOfVotes = models.BigAutoField()
-    candidate = models.models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    def __init__(self, numberOfVotes, candidate):
+        self.numberOfVotes:int = numberOfVotes
+        self.candidate:Candidate = candidate
+    
+class Vote(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    answer = models.ForeignKey(Candidate, on_delete=models.CASCADE)
