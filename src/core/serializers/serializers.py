@@ -1,44 +1,67 @@
+""" Module defining serializers for models """
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from core.models.models import Candidate, Poll, Vote
-from django.contrib.auth.models import User
+from core.models.models import Candidate, Poll, Vote, Voter
 
-class PollSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField(required=True, max_length=256)
-    created = serializers.DateTimeField(required=False, read_only=True)
-    start = serializers.DateTimeField(required=False)
-    end = serializers.DateTimeField(required=True)
-    isActive = serializers.BooleanField(required=True)
-    
-    def create(self, validated_data):
-        return Poll.objects.create(**validated_data)
+
+User = get_user_model()
+
+
+class CandidateNestedSerializer(serializers.ModelSerializer):
+    """ Serializer for nested candidate model """
+    class Meta:
+        model = Candidate
+        fields = ("id", "name")
+        depth = 1
+
+
+class PollSerializer(serializers.ModelSerializer):
+    """ Serializer for poll model """
+    candidates = CandidateNestedSerializer(many=True, read_only=True)
+    class Meta:
+        model = Poll
+        fields = "__all__"
+        depth = 1
+
+
+class CandidateSerializer(serializers.ModelSerializer):
+    """ Serializer for standalone candidate model """
+    poll = serializers.PrimaryKeyRelatedField(
+        many=False,
+        read_only=False,
+        queryset=Poll.objects.all()
+        )
+
+    class Meta:
+        model = Candidate
+        fields = "__all__"
+        depth = 1
+
+
+class VoteSerializer(serializers.ModelSerializer):
+    """ Serializer for vote model """
+    class Meta:
+        model = Vote
+        fields = "__all__"
+        depth = 1
+    answer = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
+    poll = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
 
     def update(self, instance, validated_data):
-        instance.title = validated_data.get('title', instance.title)
-        instance.start = validated_data.get('start', instance.start)
-        instance.end = validated_data.get('end', instance.end)
-        instance.isActive = validated_data.get('isActive', instance.isActive)
-        instance.save()
+        """ Do not allow updates """
         return instance
 
-class CandidateSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(max_length=50, required=True)
-    poll = PollSerializer(many=True, read_only=True)
 
-    def create(self, validated_data):
-        return Candidate.objects.create(**validated_data)
+class VoterSerializer(serializers.ModelSerializer):
+    """ Serializer for voter model """
+    user = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field="email"
+    )
+    class Meta:
+        model = Voter
+        fields = "__all__"
 
     def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        return instance
-
-class VoteSerializer(serializers.Serializer):
-    answer = CandidateSerializer(many=True, read_only = True)
-    poll = PollSerializer(many=True, read_only = True)
-
-    def create(self, validated_data):
-        return VoteSerializer.objects.create(**validated_data)
-
-    
-       
+        return Voter.objects.update(**validated_data)

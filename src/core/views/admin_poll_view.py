@@ -1,10 +1,27 @@
+""" Module containing views for administration panel """
+
+from datetime import date
+from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status, generics, authentication, permissions
-from core.models.models import *
-from core.serializers.serializers import *
+from core.models.models import Poll, Candidate
+from core.serializers.serializers import PollSerializer, \
+    CandidateSerializer, CandidateNestedSerializer
 
 
-class AdminListPoll(generics.ListAPIView):
+class AdminListOrCreatePoll(generics.ListCreateAPIView):
+    """
+    Lists all polls
+
+    Optional query parameters:
+    ongoing (true/false) - returns only ongoing polls
+    future (true/false) - returns only future polls
+    ended (true/false) - return only ended polls
+    active (active/cancelled) - filter based on poll's cancellation status
+
+    The date parameters are evaluated in order: ongoing, future, ended. If you specify both future
+    and ended, only future polls will be returned.
+    """
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
     permission_classes = [permissions.IsAdminUser]
@@ -12,37 +29,65 @@ class AdminListPoll(generics.ListAPIView):
         authentication.BasicAuthentication,
         authentication.SessionAuthentication
     ]
+
+    def get_queryset(self):
+        future = self.request.query_params.get("future", "False").lower() == "true"
+        ongoing = self.request.query_params.get("ongoing", "False").lower() == "true"
+        ended = self.request.query_params.get("ended", "False").lower() == "true"
+        active = self.request.query_params.get("active", None)
+        queryset = Poll.objects.all()
+        if ongoing:
+            queryset = queryset \
+                .filter(start__lte=date.today()) \
+                .filter(end__gte=date.today())
+        elif future:
+            queryset = queryset \
+                .filter(start__gte=date.today())
+        elif ended:
+            queryset = queryset \
+                .filter(end__lte=date.today())
+        if active is not None:
+            if active.lower() == "active":
+                queryset = queryset.filter(isActive=True)
+            elif active.lower() == "cancelled":
+                queryset = queryset.filter(isActive=False)
+        return queryset
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
-
-
-class AdminCreatePoll(generics.CreateAPIView):
-    queryset = Poll.objects.all()
-    serializer_class = PollSerializer
-    permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
 
-class AdminPoll(generics.RetrieveUpdateAPIView):
+class AdminCreatePoll(generics.CreateAPIView):
+    """ Creates a new poll """
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
+    permission_classes = [permissions.IsAdminUser]
     authentication_classes = [
         authentication.BasicAuthentication,
         authentication.SessionAuthentication
     ]
 
+
+class AdminPoll(generics.RetrieveUpdateAPIView):
+    """ General poll management view """
+    queryset = Poll.objects.all()
+    serializer_class = PollSerializer
+    permission_classes = [permissions.IsAdminUser]
+    authentication_classes = [
+        authentication.BasicAuthentication,
+        authentication.SessionAuthentication
+    ]
+    lookup_field = "id"
+
+    def get_queryset(self):
+        poll_id = self.kwargs.get("id", None)
+        return Poll.objects.filter(id=poll_id)
+
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
@@ -52,15 +97,84 @@ class AdminPoll(generics.RetrieveUpdateAPIView):
 
 
 class AdminStartPoll(generics.GenericAPIView):
-    queryset = Poll.objects.all()
-    serializer_class = PollSerializer
+    """ View for starting a poll """
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [authentication.TokenAuthentication]
+    authentication_classes = [
+        authentication.BasicAuthentication,
+        authentication.SessionAuthentication
+    ]
 
-    def post(self, request, pk):
-        from datetime import datetime
-        poll = Poll.objects.get(pk=pk)
-        poll.start = datetime.now()
-        serializer = self.get_serializer(data=poll, many=False)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def post(self, request, *args, **kwargs):
+        """ Updates poll's start date to >>now<< """
+        poll_id = self.kwargs.get("id", None)
+        poll = Poll.objects.get(id=poll_id)
+        datenow = timezone.now()
+        if not poll:
+            return Response(
+                data="{ \"detail\": \"Poll not found\"}",
+                status=status.HTTP_404_NOT_FOUND
+            )
+        else:
+            if poll.end < datenow:
+                return Response(
+                    data="{ \"detail\": \"Poll has already ended\"}",
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            elif poll.start < datenow:
+                return Response(
+                    data="{ \"detail\": \"Poll has already started\"}",
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            else:
+                poll.start = datenow
+                serializer = PollSerializer(instance=poll, many=False)
+                poll.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+class AdminListOrAddCandidate(generics.ListCreateAPIView):
+    """ View for listing or adding poll options """
+    queryset = Candidate.objects.all()
+    serializer_class = CandidateNestedSerializer
+    permission_classes = [permissions.IsAdminUser]
+    authentication_classes = [
+        authentication.BasicAuthentication,
+        authentication.SessionAuthentication
+    ]
+
+    def get_queryset(self):
+        poll_id = self.kwargs.get("poll_id", None)
+        return Candidate.objects.filter(poll=poll_id)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        poll_id = {"poll": self.kwargs.get("poll_id", None)}
+        data = {**(request.data), **poll_id}
+        serializer = CandidateSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AdminGetDeleteCandidate(generics.RetrieveDestroyAPIView):
+    """ View for managing poll options """
+    queryset = Candidate.objects.all()
+    serializer_class = CandidateSerializer
+    permission_classes = [permissions.IsAdminUser]
+    authentication_classes = [
+        authentication.BasicAuthentication,
+        authentication.SessionAuthentication
+    ]
+    lookup_field = "id"
+
+    def get_queryset(self):
+        poll_id = self.kwargs.get("poll_id", None)
+        candidate_id = self.kwargs.get(self.lookup_field, None)
+        return Candidate.objects.filter(id=candidate_id, poll=poll_id)
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)

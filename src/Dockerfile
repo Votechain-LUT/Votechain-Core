@@ -23,6 +23,10 @@ WORKDIR /usr/src/
 RUN mkdir -p static
 COPY . .
 
+# changes line endings in case the script was copied from windows
+RUN tr -d '\015' < entrypoint.sh > entrypoint2.sh
+RUN mv -f entrypoint2.sh entrypoint.sh
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 CMD [ "/bin/sh", "entrypoint.sh" ]
