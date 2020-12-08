@@ -4,8 +4,10 @@ ENV PYTHONUNBUFFERED 1
 ENV ACCEPT_EULA Y
 
 RUN apk update
+RUN apk upgrade
 RUN apk add --no-cache g++
 RUN apk add --no-cache libc6-compat
+RUN apk add bash
 
 RUN apk add python3 python3-dev
 RUN python3 -m ensurepip
@@ -27,6 +29,6 @@ COPY . .
 RUN tr -d '\015' < entrypoint.sh > entrypoint2.sh
 RUN mv -f entrypoint2.sh entrypoint.sh
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-CMD [ "/bin/sh", "entrypoint.sh" ]
+CMD [ "/bin/bash", "entrypoint.sh" ]

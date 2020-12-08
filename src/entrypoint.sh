@@ -23,6 +23,6 @@ echo "COLLECT STATIC"
 python3 manage.py collectstatic --noinput --clear
 
 echo "RUN GUNICORN"
-gunicorn --workers=4 --bind=0.0.0.0:8000 Votechain.wsgi &
+gunicorn --workers=4 --bind=0.0.0.0:8000 votechain.wsgi &
 
 caddy run
