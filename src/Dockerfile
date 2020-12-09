@@ -1,10 +1,19 @@
-FROM caddy:2.1.1-alpine
+  
+FROM python:3.9.0-alpine
 
 ARG PRIVATE_KEY
 
 ENV PRIVATE_KEY ${PRIVATE_KEY}}
 ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH /usr/local/bin
+ENV DJANGO_SUPERUSER_PASSWORD admin
+ENV DJANGO_SUPERUSER_USERNAME admin
+ENV DJANGO_SUPERUSER_EMAIL admin@admin.com
 ENV ACCEPT_EULA Y
+
+EXPOSE 8000
+
+WORKDIR /usr/src/mssql
 
 RUN apk update
 RUN apk upgrade
@@ -21,11 +30,8 @@ RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac
 RUN apk add --allow-untrusted msodbcsql17_17.6.1.1-1_amd64.apk
 RUN apk add --no-cache unixodbc-dev
 
-COPY Caddyfile /etc/caddy/Caddyfile
+WORKDIR /usr/src/app
 
-WORKDIR /usr/src/
-
-RUN mkdir -p static
 COPY . .
 
 # changes line endings in case the script was copied from windows
