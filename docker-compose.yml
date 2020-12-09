@@ -23,8 +23,7 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_HOST=database
     ports:
-      - 80:80
-      - 443:443
+      - 80:8000
     volumes:
       - ./caddy_volume:/data
       - ./caddy_config:/config

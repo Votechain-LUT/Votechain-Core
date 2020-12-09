@@ -22,7 +22,5 @@ python3 manage.py createsuperuser --noinput
 echo "COLLECT STATIC"
 python3 manage.py collectstatic --noinput --clear
 
-echo "RUN GUNICORN"
-gunicorn --workers=4 --bind=0.0.0.0:8000 Votechain.wsgi &
-
-caddy run
+echo "STARTING UP HTTP LISTENER"
+python manage.py runserver 0.0.0.0:8000
