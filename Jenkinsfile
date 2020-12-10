@@ -5,13 +5,14 @@ pipeline {
     registry = 'ghcr.io/votechain-lut/core-api'
     ghcr_user = '210342'
     ghcr_access_token = credentials('ghcr-access-token')
+    private_api_key = credentials('private-api-key')
   }
   agent any
   stages {
     stage('Build core api') {
       steps {
         script {
-          image = docker.build(registry + ":" + version + BUILD_NUMBER, './src')
+          image = docker.build(registry + ":" + version + BUILD_NUMBER, '--build-arg PRIVATE_KEY=$private_api_key ./src')
         }
       }
     }
@@ -35,6 +36,7 @@ pipeline {
         script {
           image.inside {
             script {
+              sh 'export PRIVATE_KEY=$private_api_key'
               sh 'python3 src/manage.py test'
             }
           }

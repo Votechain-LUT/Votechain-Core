@@ -1,35 +1,3 @@
-Skip to content
-Search or jump to…
-
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@210342 
-210342
-/
-Votechain-AI
-Private
-2
-00
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-Votechain-AI/.gitignore
-@210342
-210342 Initial commit
-Latest commit dc4819c on 2 Sep
- History
- 1 contributor
-129 lines (105 sloc)  1.76 KB
-  
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
