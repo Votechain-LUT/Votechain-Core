@@ -1,4 +1,5 @@
 """ Module defining system's models """
+from collections import namedtuple
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
@@ -30,11 +31,7 @@ class Candidate(models.Model):
         ]
 
 
-class CandidateResult():
-    """ Used to return poll's results per candidate """
-    def __init__(self, number_of_votes: int, candidate: Candidate):
-        self.number_of_votes = number_of_votes
-        self.candidate = candidate
+CandidateResult = namedtuple("CandidateResult", ["candidate", "number_of_votes"])
 
 
 class Vote(models.Model):
@@ -60,6 +57,7 @@ def create_voter(sender, instance, created, **kwargs):
 def update_voter(sender, instance, **kwargs):
     """ Updates voter when user is updated """
     instance.voter.save()
+# pylint: enable=unused-argument
 
 
 class Trail(models.Model):

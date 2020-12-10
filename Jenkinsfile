@@ -15,7 +15,36 @@ pipeline {
         }
       }
     }
+    stage('Static code analysis') {
+      steps {
+        script {
+          image.inside {
+            script {
+              sh 'pylint --rcfile=pylintrc --output-format=parseable --reports=n --exit-zero src/votechain > pylint-votechain.log'
+              sh 'pylint --rcfile=pylintrc --output-format=parseable --reports=n --exit-zero src/core > pylint-core.log'
+              sh 'cat pylint-votechain.log pylint-core.log'
+              sh 'cat pylint-votechain.log | grep "rated at" | grep -Eo "([7-9]|10)" | head -1 | grep -Eq "([7-9]|10)"'
+              sh 'cat pylint-core.log | grep "rated at" | grep -Eo "([7-9]|10)" | head -1 | grep -Eq "([7-9]|10)"'
+            }
+          }
+        }
+      }
+    }
+    stage('Unit tests') {
+      steps {
+        script {
+          image.inside {
+            script {
+              sh 'python3 src/manage.py test'
+            }
+          }
+        }
+      }
+    }
     stage('Publish core api') {
+      when {
+        branch 'main'
+      }
       steps {
         sh '''#!/bin/bash
           echo $ghcr_access_token | docker login ghcr.io -u $ghcr_user --password-stdin

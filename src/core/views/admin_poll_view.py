@@ -104,7 +104,7 @@ class AdminStartPoll(generics.GenericAPIView):
         authentication.SessionAuthentication
     ]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         """ Updates poll's start date to >>now<< """
         poll_id = self.kwargs.get("id", None)
         poll = Poll.objects.get(id=poll_id)
@@ -114,22 +114,20 @@ class AdminStartPoll(generics.GenericAPIView):
                 data="{ \"detail\": \"Poll not found\"}",
                 status=status.HTTP_404_NOT_FOUND
             )
-        else:
-            if poll.end < datenow:
-                return Response(
-                    data="{ \"detail\": \"Poll has already ended\"}",
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            elif poll.start < datenow:
-                return Response(
-                    data="{ \"detail\": \"Poll has already started\"}",
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            else:
-                poll.start = datenow
-                serializer = PollSerializer(instance=poll, many=False)
-                poll.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
+        if poll.end < datenow:
+            return Response(
+                data="{ \"detail\": \"Poll has already ended\"}",
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if poll.start < datenow:
+            return Response(
+                data="{ \"detail\": \"Poll has already started\"}",
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        poll.start = datenow
+        serializer = PollSerializer(instance=poll, many=False)
+        poll.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class AdminListOrAddCandidate(generics.ListCreateAPIView):
     """ View for listing or adding poll options """
