@@ -1,5 +1,5 @@
 """
-WSGI config for Votechain project.
+WSGI config for votechain project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

@@ -1,5 +1,5 @@
 """
-ASGI config for Votechain project.
+ASGI config for votechain project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

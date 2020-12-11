@@ -25,10 +25,6 @@ class AdminListOrCreatePoll(generics.ListCreateAPIView):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
 
     def get_queryset(self):
         future = self.request.query_params.get("future", "False").lower() == "true"
@@ -65,10 +61,6 @@ class AdminCreatePoll(generics.CreateAPIView):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
 
 
 class AdminPoll(generics.RetrieveUpdateAPIView):
@@ -76,10 +68,6 @@ class AdminPoll(generics.RetrieveUpdateAPIView):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
     lookup_field = "id"
 
     def get_queryset(self):
@@ -99,12 +87,8 @@ class AdminPoll(generics.RetrieveUpdateAPIView):
 class AdminStartPoll(generics.GenericAPIView):
     """ View for starting a poll """
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         """ Updates poll's start date to >>now<< """
         poll_id = self.kwargs.get("id", None)
         poll = Poll.objects.get(id=poll_id)
@@ -114,32 +98,26 @@ class AdminStartPoll(generics.GenericAPIView):
                 data="{ \"detail\": \"Poll not found\"}",
                 status=status.HTTP_404_NOT_FOUND
             )
-        else:
-            if poll.end < datenow:
-                return Response(
-                    data="{ \"detail\": \"Poll has already ended\"}",
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            elif poll.start < datenow:
-                return Response(
-                    data="{ \"detail\": \"Poll has already started\"}",
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            else:
-                poll.start = datenow
-                serializer = PollSerializer(instance=poll, many=False)
-                poll.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
+        if poll.end < datenow:
+            return Response(
+                data="{ \"detail\": \"Poll has already ended\"}",
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if poll.start < datenow:
+            return Response(
+                data="{ \"detail\": \"Poll has already started\"}",
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        poll.start = datenow
+        serializer = PollSerializer(instance=poll, many=False)
+        poll.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class AdminListOrAddCandidate(generics.ListCreateAPIView):
     """ View for listing or adding poll options """
     queryset = Candidate.objects.all()
     serializer_class = CandidateNestedSerializer
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
 
     def get_queryset(self):
         poll_id = self.kwargs.get("poll_id", None)
@@ -162,10 +140,6 @@ class AdminGetDeleteCandidate(generics.RetrieveDestroyAPIView):
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
     lookup_field = "id"
 
     def get_queryset(self):
