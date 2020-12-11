@@ -25,10 +25,6 @@ class AdminListOrCreatePoll(generics.ListCreateAPIView):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
 
     def get_queryset(self):
         future = self.request.query_params.get("future", "False").lower() == "true"
@@ -65,10 +61,6 @@ class AdminCreatePoll(generics.CreateAPIView):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
 
 
 class AdminPoll(generics.RetrieveUpdateAPIView):
@@ -76,10 +68,6 @@ class AdminPoll(generics.RetrieveUpdateAPIView):
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
     lookup_field = "id"
 
     def get_queryset(self):
@@ -99,10 +87,6 @@ class AdminPoll(generics.RetrieveUpdateAPIView):
 class AdminStartPoll(generics.GenericAPIView):
     """ View for starting a poll """
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
 
     def post(self, request):
         """ Updates poll's start date to >>now<< """
@@ -134,10 +118,6 @@ class AdminListOrAddCandidate(generics.ListCreateAPIView):
     queryset = Candidate.objects.all()
     serializer_class = CandidateNestedSerializer
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
 
     def get_queryset(self):
         poll_id = self.kwargs.get("poll_id", None)
@@ -160,10 +140,6 @@ class AdminGetDeleteCandidate(generics.RetrieveDestroyAPIView):
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer
     permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [
-        authentication.BasicAuthentication,
-        authentication.SessionAuthentication
-    ]
     lookup_field = "id"
 
     def get_queryset(self):
