@@ -9,7 +9,7 @@ services:
       - BACKUP_FILE=${BACKUP_FILE}
       - MSSQL_BACKUP_DIR=${MSSQL_BACKUP_DIR}
     ports:
-      - 1433:1433
+      - 2866:1433
 
   backend:
     container_name: core-api
