@@ -24,7 +24,7 @@ class AdminListOrCreatePoll(generics.ListCreateAPIView):
     """
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         future = self.request.query_params.get("future", "False").lower() == "true"
@@ -67,7 +67,7 @@ class AdminPoll(generics.RetrieveUpdateAPIView):
     """ General poll management view """
     queryset = Poll.objects.all()
     serializer_class = PollSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.AllowAny]
     lookup_field = "id"
 
     def get_queryset(self):
@@ -86,7 +86,7 @@ class AdminPoll(generics.RetrieveUpdateAPIView):
 
 class AdminStartPoll(generics.GenericAPIView):
     """ View for starting a poll """
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         """ Updates poll's start date to >>now<< """
@@ -117,7 +117,7 @@ class AdminListOrAddCandidate(generics.ListCreateAPIView):
     """ View for listing or adding poll options """
     queryset = Candidate.objects.all()
     serializer_class = CandidateNestedSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         poll_id = self.kwargs.get("poll_id", None)
@@ -139,7 +139,7 @@ class AdminGetDeleteCandidate(generics.RetrieveDestroyAPIView):
     """ View for managing poll options """
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.AllowAny]
     lookup_field = "id"
 
     def get_queryset(self):
