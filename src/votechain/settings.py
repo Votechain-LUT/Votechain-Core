@@ -137,7 +137,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 SIMPLE_JWT  = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=2),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
     'REFRESH_TOKEN_LIFETIME': timedelta(hours=6),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -160,7 +160,7 @@ SIMPLE_JWT  = {
     'JTI_CLAIM': 'jti',
 
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=2),
+    'SLIDING_TOKEN_LIFETIME': timedelta(hours=24),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(hours=6),
 }
 
@@ -196,6 +196,6 @@ SWAGGER_SETTINGS = {
    }
 }
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://localhost:[0-9]+$",
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000'
 ]
