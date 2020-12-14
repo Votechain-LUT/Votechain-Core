@@ -29,14 +29,21 @@ RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac
 RUN apk add --allow-untrusted msodbcsql17_17.6.1.1-1_amd64.apk
 RUN apk add --no-cache unixodbc-dev
 
-WORKDIR /usr/src/app
+COPY Caddyfile /etc/caddy/Caddyfile
 
-COPY . .
+WORKDIR /usr/
+
+COPY entrypoint.sh entrypoint.sh
 
 # changes line endings in case the script was copied from windows
 RUN tr -d '\015' < entrypoint.sh > entrypoint2.sh
 RUN mv -f entrypoint2.sh entrypoint.sh
 
+COPY requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-CMD [ "/bin/bash", "entrypoint.sh" ]
+WORKDIR /usr/src/
+
+COPY . .
+
+CMD [ "/bin/bash", "/usr/entrypoint.sh" ]

@@ -148,3 +148,4 @@ About
 
 sawtooth/
 /caddy*
+/src/static/*

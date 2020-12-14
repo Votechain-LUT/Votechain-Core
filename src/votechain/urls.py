@@ -18,7 +18,7 @@ from django.conf.urls.static import static
 from votechain import settings
 
 urlpatterns = [
-    path('core/', include('core.urls')),
+    path('', include('core.urls')),
 ]
 
 if settings.DEBUG:
