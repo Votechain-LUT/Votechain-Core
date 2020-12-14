@@ -23,15 +23,17 @@ RUN apk add --no-cache unixodbc-dev
 
 COPY Caddyfile /etc/caddy/Caddyfile
 
-WORKDIR /usr/src/
+WORKDIR /usr/
 
-RUN mkdir -p static
-COPY . .
+COPY entrypoint.sh entrypoint.sh
 
 # changes line endings in case the script was copied from windows
 RUN tr -d '\015' < entrypoint.sh > entrypoint2.sh
 RUN mv -f entrypoint2.sh entrypoint.sh
 
+COPY requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-CMD [ "/bin/bash", "entrypoint.sh" ]
+WORKDIR /usr/src/
+
+CMD [ "/bin/bash", "/usr/entrypoint.sh" ]
