@@ -40,13 +40,13 @@ schema_view = get_schema_view(
 
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    path('admin/doc/', include('django.contrib.admindocs.urls')),
-    path('admin/login/', page_not_found, kwargs={'exception': Exception('Page not Found')}),
-    path('admin/', admin.site.urls),
-    path('auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('poll/<int:id>/start/', admin_poll_view.AdminStartPoll.as_view(), name='admin_start_poll'),
-    path('poll/<int:id>/', admin_poll_view.AdminPoll.as_view(), name='admin_poll'),
-    path('poll/', admin_poll_view.AdminListOrCreatePoll.as_view(), name='admin_list_poll'),
+    path('admin/doc', include('django.contrib.admindocs.urls')),
+    path('admin/login', page_not_found, kwargs={'exception': Exception('Page not Found')}),
+    path('admin', admin.site.urls),
+    path('auth', include('rest_framework.urls', namespace='rest_framework')),
+    path('poll/<int:id>/start', admin_poll_view.AdminStartPoll.as_view(), name='admin_start_poll'),
+    path('poll/<int:id>', admin_poll_view.AdminPoll.as_view(), name='admin_poll'),
+    path('poll', admin_poll_view.AdminListOrCreatePoll.as_view(), name='admin_list_poll'),
     path(
         'poll/<int:poll_id>/candidate',
         admin_poll_view.AdminListOrAddCandidate.as_view(),
@@ -60,6 +60,6 @@ urlpatterns = [
     url(r'^swagger(?P<format>\.json|\.yaml)$',
         schema_view.without_ui(cache_timeout=0), name='schema-json'),
     url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
 ]
