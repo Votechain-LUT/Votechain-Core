@@ -31,5 +31,6 @@ services:
     volumes:
       - ./caddy_volume:/data
       - ./caddy_config:/config
+      - ./src:/usr/src
     depends_on:
       - database
