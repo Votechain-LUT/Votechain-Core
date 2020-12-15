@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 
 User = get_user_model()
@@ -17,6 +18,31 @@ class Poll(models.Model):
     start = models.DateTimeField(blank=True, db_index=True, null=True)
     end = models.DateTimeField(blank=False)
     isActive = models.BooleanField(blank=False, default=False)
+
+    def can_edit(self):
+        """
+        Checks whether the poll can be edited
+        """
+        datenow = timezone.now()
+        if self.end < datenow:
+            return False
+        if self.start < datenow:
+            return False
+        return True
+
+    def get_edit_status(self):
+        """
+        Checks whether the poll can be edited and why
+        returns 0 when poll can be edited,
+        1 when poll has already ended,
+        -1 when poll has already started
+        """
+        datenow = timezone.now()
+        if self.end < datenow:
+            return 1
+        if self.start < datenow:
+            return -1
+        return 0
 
 
 class Candidate(models.Model):
@@ -46,6 +72,7 @@ class Voter(models.Model):
     polls = models.ManyToManyField(Poll)
 
 
+# pylint: disable=unused-argument
 @receiver(post_save, sender=User)
 def create_voter(sender, instance, created, **kwargs):
     """ Saves voter when user is added """
