@@ -93,11 +93,11 @@ DATABASES = {
         'ENGINE': 'sql_server.pyodbc',
         'TRUSTED_CONNECTION': 'No',
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
-        'PORT': '1433',
+        'PORT': os.environ.get('DATABASE_PORT', '1433'),
         'USER': os.environ.get('DATABASE_USER', 'sa'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
         'AUTOCOMMIT': True,
-        'NAME': 'votechain',
+        'NAME': 'Votechain',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server'
         }
