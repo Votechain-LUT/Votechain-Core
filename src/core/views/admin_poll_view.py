@@ -17,7 +17,7 @@ class AdminListOrCreatePoll(generics.ListCreateAPIView):
     ongoing (true/false) - returns only ongoing polls
     future (true/false) - returns only future polls
     ended (true/false) - return only ended polls
-    active (active/cancelled) - filter based on poll's cancellation status
+    active (true/false) - filter based on poll's cancellation status
 
     The date parameters are evaluated in order: ongoing, future, ended. If you specify both future
     and ended, only future polls will be returned.
@@ -43,9 +43,9 @@ class AdminListOrCreatePoll(generics.ListCreateAPIView):
             queryset = queryset \
                 .filter(end__lte=date.today())
         if active is not None:
-            if active.lower() == "active":
+            if active.lower() == "true":
                 queryset = queryset.filter(isActive=True)
-            elif active.lower() == "cancelled":
+            elif active.lower() == "false":
                 queryset = queryset.filter(isActive=False)
         return queryset
 
