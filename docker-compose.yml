@@ -25,6 +25,8 @@ services:
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_HOST=database
+      - DATABASE_PORT=${DATABASE_PORT}
+      - PORT=8000
     ports:
       - 8000:8000
     volumes:
