@@ -108,6 +108,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication'
     ],
+    'DATE_INPUT_FORMATS': [
+        '%d-%m-%Y'
+    ],
+    'DATETIME_INPUT_FORMATS': [
+        '%d-%m-%Y %H:%M:%S'
+    ],
+    'DATE_FORMAT': '%d-%m-%Y',
+    'DATETIME_FORMAT': '%d-%m-%Y %H:%M:%S',
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle'
@@ -169,7 +177,7 @@ SIMPLE_JWT  = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.environ.get('TIMEZONE', 'UTC')
 
 USE_I18N = True
 
