@@ -17,7 +17,7 @@ class Poll(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     start = models.DateTimeField(blank=True, db_index=True, null=True, default=timezone.now)
     end = models.DateTimeField(blank=False)
-    isActive = models.BooleanField(blank=False, default=False)
+    isActive = models.BooleanField(blank=False, default=True)
 
     def can_edit(self):
         """
