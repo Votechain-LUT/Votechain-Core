@@ -4,6 +4,8 @@ from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 from django.contrib.auth.models import update_last_login
+from pytz import timezone
+from votechain import settings
 
 
 class JwtSerializer(TokenObtainPairSerializer):
@@ -12,7 +14,10 @@ class JwtSerializer(TokenObtainPairSerializer):
 
         refresh = self.get_token(self.user)
         data["access"] = str(refresh.access_token)
-        data["expires"] = str(datetime_from_epoch(refresh.access_token.payload["exp"]))
+        data["expires"] = str(
+            datetime_from_epoch(refresh.access_token.payload["exp"])
+                .astimezone(timezone(settings.TIME_ZONE))
+        )
         data.pop("refresh")
 
         if api_settings.UPDATE_LAST_LOGIN:
@@ -44,7 +49,10 @@ class JwtRefreshSerializer(serializers.Serializer):
             refresh.set_jti()
             refresh.set_exp()
         data["access"] = str(refresh.access_token)
-        data["expires"] = str(datetime_from_epoch(refresh.access_token.payload["exp"]))
+        data["expires"] = str(
+            datetime_from_epoch(refresh.access_token.payload["exp"])
+                .astimezone(timezone(settings.TIME_ZONE))
+        )
         data["refresh"] = str(refresh)
         return data
 
