@@ -10,17 +10,26 @@ from core.serializers.serializers import PollSerializer, \
 
 
 def update_poll(request, poll, method, *args, **kwargs):
+    if not poll.isActive and request.data.get("isActive", False):
+        request.data["isActive"] = False
     if poll.can_edit():
         return method(request, *args, **kwargs)
     poll_status = poll.get_edit_status()
     if poll_status == 1:
         return Response(
-            data={ "detail": "Poll has already ended"},
+            data={ "detail": "Poll has already ended" },
             status=status.HTTP_400_BAD_REQUEST
         )
     if poll_status == -1:
-        return Response (
-            data={ "detail": "Cannot edit an ongoing poll"},
+        if not request.data.get("isActive", True):
+            poll.isActive = False
+            poll.save()
+            return Response(
+                data={ "detail": "Poll has been cancelled" },
+                status=status.HTTP_206_PARTIAL_CONTENT
+            )
+        return Response(
+            data={ "detail": "Cannot edit an ongoing poll" },
             status=status.HTTP_400_BAD_REQUEST
         )
 
@@ -98,7 +107,7 @@ class AdminPoll(generics.RetrieveUpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         if self.get_queryset().count() > 0:
-            return update_poll(request, self.get_queryset()[0], self.update, *args, **kwargs)
+            return update_poll(request, self.get_queryset()[0], self.partial_update, *args, **kwargs)
         return Response(
             data={ "detail": "Poll not found"},
             status=status.HTTP_404_NOT_FOUND
@@ -130,7 +139,6 @@ class AdminStartPoll(generics.GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         poll.start = datenow
-        poll.isActive = True
         serializer = PollSerializer(instance=poll, many=False)
         poll.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
