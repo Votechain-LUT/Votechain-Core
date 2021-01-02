@@ -28,6 +28,11 @@ class JwtRefreshView(TokenRefreshView):
 
     def post(self, request, *args, **kwargs):
         token_payload = request.COOKIES.get(JWT_REFRESH_COOKIE)
+        if token_payload is None:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data={ "detail": "jwt_refresh cookie is missing" }
+            )
         serializer = self.get_serializer(data={ "refresh": token_payload })
         try:
             serializer.is_valid(raise_exception=True)
