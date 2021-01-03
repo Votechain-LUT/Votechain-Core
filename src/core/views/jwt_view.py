@@ -31,7 +31,7 @@ class JwtRefreshView(TokenRefreshView):
         if token_payload is None:
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
-                data={ "detail": "jwt_refresh cookie is missing" }
+                data={ "detail": JWT_REFRESH_COOKIE + " cookie is missing" }
             )
         serializer = self.get_serializer(data={ "refresh": token_payload })
         try:
