@@ -24,23 +24,20 @@ pipeline {
               sh 'pylint --rcfile=pylintrc --output-format=parseable --reports=n --exit-zero src/votechain > pylint-votechain.log'
               sh 'pylint --rcfile=pylintrc --output-format=parseable --reports=n --exit-zero src/core > pylint-core.log'
               sh 'cat pylint-votechain.log pylint-core.log'
-              sh 'cat pylint-votechain.log | grep "rated at" | grep -Eo "([7-9]|10)" | head -1 | grep -Eq "([7-9]|10)"'
-              sh 'cat pylint-core.log | grep "rated at" | grep -Eo "([7-9]|10)" | head -1 | grep -Eq "([7-9]|10)"'
+              sh 'cat pylint-votechain.log | grep "rated at" | grep -Eo "(9|10)" | head -1 | grep -Eq "(9|10)"'
+              sh 'cat pylint-core.log | grep "rated at" | grep -Eo "(9|10)" | head -1 | grep -Eq "(9|10)"'
             }
           }
         }
       }
     }
-    stage('Unit tests') {
+    stage('Tests') {
       steps {
-        script {
-          image.inside {
-            script {
-              sh 'export PRIVATE_KEY=$private_api_key'
-              sh 'python3 src/manage.py test'
-            }
-          }
-        }
+        sh '/bin/sh ./tools/jenkins_docker_cleanup.sh'
+        sh 'mv ./.env.test ./.env'
+        sh 'docker-compose -f docker-compose.test.yml build backend'
+        sh 'docker-compose -f docker-compose.test.yml up --force-recreate --abort-on-container-exit'
+        sh '/bin/sh ./tools/jenkins_docker_cleanup.sh'
       }
     }
     stage('Publish core api') {
