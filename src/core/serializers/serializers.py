@@ -23,6 +23,14 @@ class PollSerializer(serializers.ModelSerializer):
         fields = "__all__"
         depth = 1
 
+    def validate(self, attrs):
+        """
+        Check that poll starts before it ends.
+        """
+        if attrs['start'] > attrs['end']:
+            raise serializers.ValidationError("End date must be later than start date")
+        return attrs
+
 
 class CandidateSerializer(serializers.ModelSerializer):
     """ Serializer for standalone candidate model """

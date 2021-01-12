@@ -11,6 +11,7 @@ RUN add-apt-repository \
 RUN apt-get update && apt-get install -y docker-ce-cli
 RUN apt-get install -y python3-pip python3-dev
 
-RUN pip3 install pylint setuptools
+RUN pip3 install pylint setuptools docker-compose
+RUN export PATH=$PATH:/var/jenkins_home/.local/bin
 USER jenkins
 RUN jenkins-plugin-cli --plugins blueocean:1.24.3
