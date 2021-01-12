@@ -3,6 +3,7 @@ from collections import namedtuple
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
+from django.db.models import F, Q
 from django.dispatch import receiver
 from django.utils import timezone
 
@@ -18,6 +19,14 @@ class Poll(models.Model):
     start = models.DateTimeField(blank=True, db_index=True, null=True, default=timezone.now)
     end = models.DateTimeField(blank=False)
     isActive = models.BooleanField(blank=False, default=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=Q(end__gt=F('start')),
+                name="core_poll_start_end_date_check"
+            )
+        ]
 
     def can_edit(self):
         """
