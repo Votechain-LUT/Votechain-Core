@@ -17,15 +17,11 @@ WORKDIR /usr/src/mssql
 
 RUN apk update
 RUN apk upgrade
-RUN apk add --no-cache g++
-RUN apk add --no-cache libc6-compat
-RUN apk add bash
+RUN apk add --no-cache g++ libc6-compat libffi-dev openssl-dev bash python3 python3-dev curl
 
-RUN apk add python3 python3-dev
 RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools
 
-RUN apk add --no-cache curl
 RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.6.1.1-1_amd64.apk
 RUN apk add --allow-untrusted msodbcsql17_17.6.1.1-1_amd64.apk
 RUN apk add --no-cache unixodbc-dev
