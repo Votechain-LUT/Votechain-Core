@@ -26,8 +26,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('trail_token', models.UUIDField(auto_created=True)),
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('poll', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='core.Poll')),
-                ('voter', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='core.Voter')),
+                ('vote', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='core.Vote'))
             ],
         ),
     ]

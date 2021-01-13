@@ -104,8 +104,6 @@ DATABASES = {
     }
 }
 
-FIXTURE_DIRS = [ './core/fixtures' ]
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication'
@@ -210,3 +208,11 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000'
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+EMAIL_PORT = os.environ.get('SMTP_PORT', 587)
+EMAIL_HOST_USER = os.environ.get('SMTP_USER', None)
+EMAIL_HOST_PASSWORD = os.environ.get('SMTP_PASSWORD', None)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_USE_TLS = True

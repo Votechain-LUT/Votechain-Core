@@ -27,6 +27,10 @@ services:
       - DATABASE_HOST=database
       - DATABASE_PORT=${DATABASE_PORT}
       - PORT=8000
+      - SMTP_SERVER=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
     ports:
       - 8000:8000
     volumes:

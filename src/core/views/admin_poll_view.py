@@ -1,15 +1,45 @@
 """ Module containing views for administration panel """
 
+from django.core import mail
 from django.utils import timezone
 from django.db.utils import IntegrityError
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
-from core.models.models import Poll, Candidate
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from core.models.models import Poll, Candidate, VoteIdentificationToken
 from core.serializers.serializers import PollSerializer, \
-    CandidateSerializer, CandidateNestedSerializer
+    CandidateSerializer, CandidateNestedSerializer, VitGeneratorSerializer
+
+
+future_param = openapi.Parameter(
+    'future',
+    openapi.IN_QUERY,
+    description="returns only future polls",
+    type=openapi.TYPE_BOOLEAN
+)
+ongoing_param = openapi.Parameter(
+    'ongoing',
+    openapi.IN_QUERY,
+    description="returns only ongoing polls",
+    type=openapi.TYPE_BOOLEAN
+)
+ended_param = openapi.Parameter(
+    'ended',
+    openapi.IN_QUERY,
+    description="return only ended polls",
+    type=openapi.TYPE_BOOLEAN
+)
+active_param = openapi.Parameter(
+    'active',
+    openapi.IN_QUERY,
+    description="filter based on poll's cancellation status",
+    type=openapi.TYPE_BOOLEAN
+)
 
 
 def update_poll(request, poll, method, *args, **kwargs):
+    """ Updates a poll if possible """
     if not poll.isActive and request.data.get("isActive", False):
         request.data["isActive"] = False
     if poll.can_edit():
@@ -65,13 +95,15 @@ class AdminListOrCreatePoll(generics.ListCreateAPIView):
                 queryset = queryset.filter(isActive=False)
         return queryset
 
+
+    @swagger_auto_schema(manual_parameters=[ongoing_param, ended_param, future_param, active_param])
     def get(self, request, *args, **kwargs):
         """
         Optional query parameters:
-        ongoing (true/false) - returns only ongoing polls
-        future (true/false) - returns only future polls
-        ended (true/false) - return only ended polls
-        active (true/false) - filter based on poll's cancellation status
+        ongoing -- (true/false) returns only ongoing polls
+        future -- (true/false) returns only future polls
+        ended -- (true/false) return only ended polls
+        active -- (true/false) filter based on poll's cancellation status
 
         The date parameters are evaluated in order: ongoing, future, ended. If you specify both future
         and ended, only future polls will be returned.
@@ -116,12 +148,14 @@ class AdminPoll(generics.RetrieveUpdateAPIView):
 
 class AdminStartPoll(generics.GenericAPIView):
     """ View for starting a poll """
+    queryset = Poll.objects.all()
     permission_classes = [permissions.IsAdminUser]
+    lookup_field = "id"
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """ Updates poll's start date to >>now<< """
         poll_id = self.kwargs.get("id", None)
-        poll = Poll.objects.get(id=poll_id)
+        poll = Poll.objects.filter(id=poll_id).first()
         datenow = timezone.now()
         if not poll:
             return Response(
@@ -160,7 +194,7 @@ class AdminListOrAddCandidate(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         poll_id = {"poll": self.kwargs.get("poll_id", None)}
         data = {**(request.data), **poll_id}
-        poll = Poll.objects.get(id=poll_id["poll"])
+        poll = Poll.objects.filter(id=poll_id["poll"]).first()
         if poll is None:
             return Response(
                 data={ "detail": "Poll not found"},
@@ -178,7 +212,13 @@ class AdminListOrAddCandidate(generics.ListCreateAPIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             return Response(serializer.data)
-        return update_poll(request, poll, None, *args, **kwargs)
+        return update_poll(
+            request,
+            poll,
+            lambda x: Response(status=status.HTTP_400_BAD_REQUEST),
+            *args,
+            **kwargs
+        )
 
 class AdminGetDeleteCandidate(generics.RetrieveDestroyAPIView):
     """ View for managing poll options """
@@ -201,4 +241,37 @@ class AdminGetDeleteCandidate(generics.RetrieveDestroyAPIView):
         return Response(
             data={ "detail": "Poll not found"},
             status=status.HTTP_404_NOT_FOUND
+        )
+
+class GenerateVitView(generics.CreateAPIView):
+    serializer_class = VitGeneratorSerializer
+    queryset = VoteIdentificationToken.objects.all()
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, *args, **kwargs):
+        poll_id = kwargs.get("id", None)
+        if poll_id is None:
+            return Response(
+                data={ "detail": "Poll id is missing"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        polls = Poll.objects.filter(id=poll_id)
+        if polls.count() == 0:
+            return Response(
+                data={ "detail": "Poll not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        poll = polls[0]
+        sent = []
+        mails = VitGeneratorSerializer(data=request.data)
+        if mails.is_valid():
+            with mail.get_connection() as connection:
+                for _mail in mails.data["users"]:
+                    vit = VoteIdentificationToken.generate_token(poll)
+                    if vit.assign(_mail, connection):
+                        sent.append(_mail)
+        response_data = { "users": sent }
+        return Response(
+            data=response_data,
+            status=status.HTTP_201_CREATED
         )
