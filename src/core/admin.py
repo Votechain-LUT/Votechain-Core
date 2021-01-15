@@ -30,7 +30,7 @@ def admin_view(view, cacheable=False):
 
     return update_wrapper(inner, view)
 
-class RegisterVoterView(generics.CreateAPIView):
+class RegisterVoterView(generics.ListCreateAPIView):
     queryset = UserModel.objects.all()
     permission_classes = [
         permissions.IsAdminUser

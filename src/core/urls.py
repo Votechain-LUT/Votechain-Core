@@ -43,7 +43,7 @@ urlpatterns = [
     path('admin/doc', include('django.contrib.admindocs.urls')),
     path('admin/login', page_not_found, kwargs={'exception': Exception('Page not Found')}),
     path('admin', admin.site.urls),
-    path('admin/user/register', RegisterVoterView.as_view(), name='users'),
+    path('admin/user', RegisterVoterView.as_view(), name='users'),
     path('admin/user/<int:pk>', GetVoterView.as_view(), name='users'),
     path('auth', include('rest_framework.urls', namespace='rest_framework')),
     path('poll/<int:id>/start', admin_poll_view.AdminStartPoll.as_view(), name='admin_start_poll'),
