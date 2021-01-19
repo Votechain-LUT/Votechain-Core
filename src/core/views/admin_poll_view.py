@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.db.utils import IntegrityError
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
+from rest_framework.serializers import Serializer
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from core.models.models import Poll, Candidate, VoteIdentificationToken
@@ -150,6 +151,7 @@ class AdminStartPoll(generics.GenericAPIView):
     """ View for starting a poll """
     queryset = Poll.objects.all()
     permission_classes = [permissions.IsAdminUser]
+    serializer_class = Serializer
     lookup_field = "id"
 
     def post(self, request, *args, **kwargs):
