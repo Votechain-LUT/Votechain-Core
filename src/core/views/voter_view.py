@@ -3,6 +3,7 @@
 from django.utils import timezone
 from django.db import connection
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 from rest_framework import status, generics, permissions
 from drf_yasg.utils import swagger_auto_schema
 from core.models.models import Poll, Voter, Vote, Candidate, Trail, VoteIdentificationToken, \
@@ -178,6 +179,7 @@ class VoterGetVote(generics.CreateAPIView, VoterView):
             )
 
 class VoterGetResults(generics.RetrieveAPIView, VoterView):
+    serializer_class = Serializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
