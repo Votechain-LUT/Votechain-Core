@@ -151,7 +151,9 @@ class VoteIdentificationToken(models.Model):
     def assign(self, email, connection):
         """ assigns a token to a user and send him an email """
         user = User.objects.filter(email=email).first()
-        voter = Voter.objects.filter(user_id=user.id).first()
+        voter = None
+        if user is not None:
+            voter = Voter.objects.filter(user_id=user.id).first()
         if voter is not None:
             if self.poll in voter.polls.all():
                 return False

@@ -3,13 +3,15 @@ version: '3'
 services:
   database:
     container_name: db
-    build: ./tmp_db
+    image: mysql:8.0.22
     environment:
-      - SA_PASSWORD=${DATABASE_PASSWORD}
-      - BACKUP_FILE=${BACKUP_FILE}
-      - MSSQL_BACKUP_DIR=${MSSQL_BACKUP_DIR}
+      - MYSQL_ROOT_PASSWORD=${DATABASE_PASSWORD}
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+      - MYSQL_DATABASE=Votechain
+      - MYSQL_TCP_PORT=${DATABASE_PORT}
     ports:
-      - 2866:1433
+      - 2866:2866
 
   backend:
     container_name: core-api
@@ -31,6 +33,7 @@ services:
       - SMTP_PORT=${SMTP_PORT}
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - CORS_FRONTEND=${CORS_FRONTEND}
     ports:
       - 8000:8000
     volumes:
