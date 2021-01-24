@@ -17,7 +17,7 @@ WORKDIR /usr/src/mssql
 
 RUN apk update
 RUN apk upgrade
-RUN apk add --no-cache g++ libc6-compat libffi-dev openssl-dev bash python3 python3-dev curl
+RUN apk add --no-cache g++ libc6-compat libffi-dev openssl-dev bash python3 python3-dev curl mysql mysql-client mariadb-dev mariadb-client
 
 RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools
