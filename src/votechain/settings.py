@@ -18,12 +18,8 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: don't run with debug turned on in production!
-<<<<<<< HEAD
-DEBUG = True
-=======
 DEBUG = os.getenv("DEBUG", "False") == "True"
 TEST = os.getenv("TEST", "False") == "True"
->>>>>>> 2956f8b2944844472a22e0ab82f4fe951050d9e7
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -97,26 +93,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
-<<<<<<< HEAD
-        'PORT': os.environ.get('DATABASE_PORT', '1433'),
-        'USER': os.environ.get('DATABASE_USER', 'sa'),
-=======
         'PORT': os.environ.get('DATABASE_PORT', '2866'),
         'USER': "root" if TEST else os.environ.get('DATABASE_USER', 'sa'),
->>>>>>> 2956f8b2944844472a22e0ab82f4fe951050d9e7
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
         'NAME': 'Votechain',
         'AUTOCOMMIT': True,
-<<<<<<< HEAD
-        'NAME': 'Votechain',
-        'OPTIONS': {
-            'driver': 'ODBC Driver 17 for SQL Server'
-        }
-=======
         'TEST': {
             'NAME': 'test_Votechain',
         },
->>>>>>> 2956f8b2944844472a22e0ab82f4fe951050d9e7
     }
 }
 
