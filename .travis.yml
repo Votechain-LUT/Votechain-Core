@@ -3,7 +3,4 @@ sudo: required
 services: docker
 before_install:
   - docker build -t votechain/api -f src/Dockerfile ./src
-script: 
-  - mv ./.env.test ./.env &&
-docker-compose -f docker-compose.test.yml build backend &&
-docker-compose -f docker-compose.test.yml up --force-recreate --abort-on-container-exit
+script: mv ./.env.test ./.env && docker-compose -f docker-compose.test.yml build backend && docker-compose -f docker-compose.test.yml up --force-recreate --abort-on-container-exit
