@@ -1,3 +1,7 @@
 steps:
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['app', 'deploy', 'src/app.yml']
+    - name: 'gcr.io/cloud-builders/docker'
+      args: [ 'build', '-t', 'gcr.io/votechain-api/api', '.' ]
+    - name: 'gcr.io/cloud-builders/docker'
+      args: [ 'push', 'gcr.io/votechain-api/api']
+    - name: "gcr.io/cloud-builders/gcloud"
+      args: ['run', 'deploy', 'api', '--image', 'gcr.io/votechain-api/node-api-tut', '--region', 'europe-west4', '--platform', 'managed', '--allow-unauthenticated', '--vpc-connector', 'votechain-network-eu4-con']
