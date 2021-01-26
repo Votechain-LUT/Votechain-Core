@@ -20,13 +20,8 @@ RUN apk upgrade
 RUN apk add --no-cache g++ libc6-compat libffi-dev openssl-dev bash python3 python3-dev curl mysql mysql-client mariadb-dev mariadb-client
 
 RUN python3 -m ensurepip
+RUN python3 -m pip install --upgrade pip
 RUN pip3 install --no-cache --upgrade pip setuptools
-
-RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.6.1.1-1_amd64.apk
-RUN apk add --allow-untrusted msodbcsql17_17.6.1.1-1_amd64.apk
-RUN apk add --no-cache unixodbc-dev
-
-WORKDIR /usr/src/app
 
 WORKDIR /usr/
 
