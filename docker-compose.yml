@@ -34,6 +34,7 @@ services:
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - CORS_FRONTEND=${CORS_FRONTEND}
+      - DEBUG=${DEBUG}
     ports:
       - 8000:8000
     volumes:
