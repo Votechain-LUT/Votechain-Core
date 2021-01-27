@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-/bin/sh ./await.sh
+/bin/bash ./await.sh
 
 echo "RUNNING TESTS"
 python3 manage.py test core.tests --noinput

@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-/bin/sh ./await.sh
+/bin/bash ./await.sh
 
 echo "COLLECT STATIC"
 python3 manage.py collectstatic --noinput --clear

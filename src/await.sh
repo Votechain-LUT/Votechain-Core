@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 STATUS=255
 i=0
 
 sleep 3s
 
-while [[ $STATUS -ne 52 ]] && [[ $STATUS -ne 1 ]] && [[ $i -lt 60 ]]
+while [[ $STATUS -ne 52 ]] && [[ $STATUS -ne 1 ]] && [[ $STATUS -ne 0 ]] && [[ $i -lt 60 ]]
 do
 	let i=i+1
     sleep 1s
