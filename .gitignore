@@ -149,3 +149,8 @@ About
 sawtooth/
 /caddy*
 /src/static/*
+/src/fabric-sdk-py/*
+
+
+# node js chaincode files
+node_modules/*

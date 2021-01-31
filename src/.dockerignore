@@ -1,0 +1,6 @@
+cloudbuild.yml
+.git
+.cache
+*__pycache__*
+*.pyc
+Dockerfile
