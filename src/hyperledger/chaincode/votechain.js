@@ -3,14 +3,14 @@ const shim = require('fabric-shim');
 const util = require('util');
 
 let Votechain = class {
+
     async Init(stub) {
         // use the instantiate input arguments to decide initial chaincode state values
         const args = stub.getFunctionAndParameters().params
 
         // save the initial states
-        args.forEach(async arg => {
-            await stub.putState(arg, Buffer.from("0"));
-        })
+        const promises = await args.map(arg => stub.putState(arg, Buffer.from("0")));
+        await Promise.all(promises);
 
         return shim.success(`Initialized Successfully with ${args.length} candidates`);
     }
@@ -21,16 +21,20 @@ let Votechain = class {
         console.info(util.format('Args: %j', stub.getArgs()));
 
         const args = stub.getFunctionAndParameters();
-
-        const method = this[args.fcn];
+        var params = args.params;
+        var methodName = args.fcn;
+        if (methodName === "invoke" && params.length > 0) {
+            methodName = args.params[0];
+            params = args.params.slice(1);
+        }
 
         // Verifies if method exist
-        if (!method) {
-            return shim.error(`Method "${args.fcn}" doesn't exist`);
+        if (!methodName in this) {
+            return shim.error(`Method "${methodName}" doesn't exist`);
         }
 
         try {
-            return await method(stub, args.params);
+            return await this[methodName](stub, params);
         } catch (err) {
             console.log(err.stack);
             return shim.error(err.message ? err.message : 'who knows the fuck has gone wrong');
@@ -49,7 +53,7 @@ let Votechain = class {
                 if (resource.value.getKey()) {
                     resultDict[resource.value.getKey()] = resource.value.getValue().toString("utf8");
                 }
-                if (resource.done) {   
+                if (resource.done) {
                     await iterator.close();
                     break;
                 }
@@ -97,9 +101,8 @@ let Votechain = class {
             return shim.error("Incorrect number of arguments. Expecting 1 or more");
         }
         try {
-            args.forEach(async candidate => {
-                await stub.putState(candidate, Buffer.from("0"));
-            })
+            const promises = await args.map(candidate => stub.putState(candidate, Buffer.from("0")));
+            await Promise.all(promises);
             var txId = stub.getTxID();
             var payload = Buffer.from(`{"txId": "${txId}"}`);
             return shim.success(payload);
@@ -127,7 +130,7 @@ let Votechain = class {
                             if (history.value && history.value.getTxId() === txId) {
                                 result = resourceKey;
                             }
-                            if (history.done) {   
+                            if (history.done) {
                                 await historyIterator.close();
                                 break;
                             }
@@ -136,7 +139,7 @@ let Votechain = class {
                 } catch (error) {
                     console.log(error.message);
                 }
-                if (resource.done) {   
+                if (resource.done) {
                     await keyIterator.close();
                     break;
                 }

@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# This is the default base file to config env and command
+# Notice that chaincode is executed inside docker in default net mode
+
+# Depends on the hyperledger/fabric-peer image.
+
+version: '2'
+
+services:
+  peer-base:
+    image: hyperledger/fabric-peer:1.4.6
+    environment:
+      - CORE_VM_ENDPOINT=unix:///var/run/docker.sock
+      - FABRIC_LOGGING_SPEC=info
+      # - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ADDRESSAUTODETECT=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false  # this node is the group leader, default to false
+      - CORE_PEER_PROFILE_ENABLED=false
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CLIENTAUTHREQUIRED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+    expose:
+      - "7050"  # Rest
+      - "7051"  # Grpc
+      - "7052"  # Peer CLI
+      - "7053"  # Peer Event
+      - "7054"  # eCAP
+      - "7055"  # eCAA
+      - "7056"  # tCAP
+      - "7057"  # eCAA
+      - "7058"  # tlsCAP
+      - "7059"  # tlsCAA

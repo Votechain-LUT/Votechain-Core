@@ -4,3 +4,5 @@ cloudbuild.yml
 *__pycache__*
 *.pyc
 Dockerfile
+hyperledger/*.yml
+hfc
