@@ -9,7 +9,6 @@ then
 fi
 
 cd fabric-sdk-py
-echo "MAKE FFS"
 make install
 cd ..
 curl -sSL https://bit.ly/2ysbOFE | bash -s -- $HLF_VERSION $HLF_VERSION

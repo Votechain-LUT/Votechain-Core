@@ -116,7 +116,6 @@ class AdminListOrCreatePoll(generics.ListCreateAPIView):
         response = self.create(request, *args, **kwargs)
         votechain_client = VotechainNetworkClient()
         votechain_client.add_poll(response.data["id"])
-        votechain_client.add_candidates(response.data["id"], ["A", "B"])
         return response
 
 

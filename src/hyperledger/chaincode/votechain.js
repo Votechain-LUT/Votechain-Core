@@ -37,7 +37,7 @@ let Votechain = class {
             return await this[methodName](stub, params);
         } catch (err) {
             console.log(err.stack);
-            return shim.error(err.message ? err.message : 'who knows the fuck has gone wrong');
+            return shim.error(err.message ? err.message : '418 - I\'m a teapot!');
         }
     }
 

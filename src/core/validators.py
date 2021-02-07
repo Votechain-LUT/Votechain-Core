@@ -1,6 +1,3 @@
-from core.models.models import Trail
-
-
 def is_vit_valid(vit, poll):
     """ validates a vit against a poll """
     if vit is None or poll is None:

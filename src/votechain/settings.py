@@ -20,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 TEST = os.getenv("TEST", "False") == "True"
+INTEGRATE_BLOCKCHAIN = os.getenv("INTEGRATE_BLOCKCHAIN", "False") == "True"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/

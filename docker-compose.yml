@@ -40,6 +40,7 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - CORS_FRONTEND=${CORS_FRONTEND}
       - DEBUG=${DEBUG}
+      - INTEGRATE_BLOCKCHAIN=True
     ports:
       - 8000:8000
     volumes:

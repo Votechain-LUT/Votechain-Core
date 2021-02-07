@@ -75,13 +75,6 @@ CandidateResult = namedtuple(
 )
 
 
-class Vote(models.Model):
-    """ Used to represent a single vote """
-    id = models.BigAutoField(primary_key=True)
-    answer = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(blank=False, auto_now_add=True)
-
-
 class Voter(models.Model):
     """ Extends a built-in user model to define the relationship with polls """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
