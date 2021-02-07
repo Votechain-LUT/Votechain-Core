@@ -71,7 +71,7 @@ class Candidate(models.Model):
 
 CandidateResult = namedtuple(
     "CandidateResult",
-    ["candidate_id", "candidate_name", "number_of_votes"]
+    ["candidate_name", "number_of_votes"]
 )
 
 

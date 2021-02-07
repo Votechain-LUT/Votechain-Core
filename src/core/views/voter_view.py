@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework import status, generics, permissions
 from drf_yasg.utils import swagger_auto_schema
-from core.models.models import Poll, Voter, Candidate, Trail, VoteIdentificationToken
+from core.models.models import Poll, Voter, Candidate, Trail, VoteIdentificationToken, \
+    CandidateResult
 from core.serializers.serializers import PollSerializer, TokenSerializer
 from core.validators import is_vit_valid
 from core.views.admin_poll_view import ongoing_param, ended_param
@@ -200,17 +201,19 @@ class VoterGetResults(generics.RetrieveAPIView, VoterView):
                 data={"detail": "Voting hasn't ended yet"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-        result = []
         votechain_client = VotechainNetworkClient()
         response = votechain_client.get_results(poll_id)
-        if response is None:
+        if not response:
             return Response(
-                data={"detail": "Vote not found"},
+                data={"detail": "Results not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
         result = json.loads(response)
+        response_payload = []
+        for key in result.keys():
+            response_payload.append(CandidateResult(key, result[key])._asdict())
         http_status = status.HTTP_404_NOT_FOUND if len(result) == 0 else status.HTTP_200_OK
         return Response(
             status=http_status,
-            data={"results": result}
+            data={"results": response_payload}
         )
