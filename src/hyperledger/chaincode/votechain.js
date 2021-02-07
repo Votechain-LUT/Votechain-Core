@@ -111,6 +111,21 @@ let Votechain = class {
         }
     }
 
+    async DeleteCandidates(stub, args) {
+        if (args.length == 0) {
+            return shim.error("Incorrect number of arguments. Expecting 1 or more");
+        }
+        try {
+            const promises = await args.map(candidate => stub.delState(candidate));
+            await Promise.all(promises);
+            var txId = stub.getTxID();
+            var payload = Buffer.from(`{"txId": "${txId}"}`);
+            return shim.success(payload);
+        } catch (error) {
+            return shim.error(error.message);
+        }
+    }
+
     async VerifyVote(stub, args) {
         if (args.length != 1) {
             return shim.error("Incorrect number of arguments. Expected 1 - transaction id");

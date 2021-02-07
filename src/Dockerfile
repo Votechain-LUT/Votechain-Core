@@ -12,6 +12,7 @@ ENV ACCEPT_EULA Y
 ENV TIMEZONE CET
 ENV HLF_VERSION 1.4.6
 ENV FABRIC_CFG_PATH /usr/src/hyperledger
+ENV CHAINCODE_PATH /chaincode/input/src
 
 # installs necessary system packages
 RUN apt-get update -y && apt-get upgrade -y && apt-get clean \
@@ -27,6 +28,7 @@ RUN python3 -m pip install --upgrade pip
 
 WORKDIR /usr/src/
 COPY . .
+COPY hyperledger/chaincode ${CHAINCODE_PATH}
 
 RUN . ./checkout-fabric-sdk.sh
 

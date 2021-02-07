@@ -42,8 +42,9 @@ services:
       - DEBUG=${DEBUG}
     ports:
       - 8000:8000
-    # volumes:
-      # - ./src:/usr/src
+    volumes:
+      - ./src/core:/usr/src/core
+      - ./src/votechain:/usr/src/votechain
     depends_on:
       - database
       - orderer.example.com

@@ -11,7 +11,7 @@ from drf_yasg.utils import swagger_auto_schema
 from core.models.models import Poll, Candidate, VoteIdentificationToken
 from core.serializers.serializers import PollSerializer, \
     CandidateSerializer, CandidateNestedSerializer, VitGeneratorSerializer
-
+from votechain.hyperledger import VotechainNetworkClient
 
 future_param = openapi.Parameter(
     'future',
@@ -113,7 +113,11 @@ class AdminListOrCreatePoll(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         """ Creates a new poll """
-        return self.create(request, *args, **kwargs)
+        response = self.create(request, *args, **kwargs)
+        votechain_client = VotechainNetworkClient()
+        votechain_client.add_poll(response.data["id"])
+        votechain_client.add_candidates(response.data["id"], ["A", "B"])
+        return response
 
 
 class AdminPoll(generics.RetrieveUpdateAPIView):
@@ -207,6 +211,8 @@ class AdminListOrAddCandidate(generics.ListCreateAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if poll.can_edit():
             try:
+                votechain_client = VotechainNetworkClient()
+                votechain_client.add_candidates(poll.id, [serializer.validated_data["name"]])
                 serializer.save()
             except IntegrityError:
                 return Response(
@@ -221,6 +227,7 @@ class AdminListOrAddCandidate(generics.ListCreateAPIView):
             *args,
             **kwargs
         )
+
 
 class AdminGetDeleteCandidate(generics.RetrieveDestroyAPIView):
     """ View for managing poll options """
@@ -237,9 +244,24 @@ class AdminGetDeleteCandidate(generics.RetrieveDestroyAPIView):
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
+    def delete_candidate(self, request, *args, **kwargs):
+        candidate = self.get_queryset().first()
+        votechain_client = VotechainNetworkClient()
+        votechain_client.delete_candidates(
+            self.kwargs.get("poll_id", None),
+            [candidate.name]
+        )
+        return self.destroy(request, *args, **kwargs)
+
     def delete(self, request, *args, **kwargs):
         if self.get_queryset().count() > 0:
-            return update_poll(request, self.get_queryset()[0].poll, self.destroy, *args, **kwargs)
+            return update_poll(
+                request,
+                self.get_queryset()[0].poll,
+                lambda x: self.delete_candidate(x, *args, **kwargs),
+                *args,
+                **kwargs
+            )
         return Response(
             data={ "detail": "Poll not found"},
             status=status.HTTP_404_NOT_FOUND

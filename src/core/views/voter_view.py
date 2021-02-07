@@ -1,24 +1,25 @@
 """ Module containing views for administration panel """
 
+import json
 from django.utils import timezone
-from django.db import connection
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework import status, generics, permissions
 from drf_yasg.utils import swagger_auto_schema
-from core.models.models import Poll, Voter, Vote, Candidate, Trail, VoteIdentificationToken, \
-    CandidateResult
-from core.serializers.serializers import VoteSerializer, PollSerializer, TokenSerializer
-from core.validators import is_vit_valid, is_vvpat_valid
+from core.models.models import Poll, Voter, Candidate, Trail, VoteIdentificationToken
+from core.serializers.serializers import PollSerializer, TokenSerializer
+from core.validators import is_vit_valid
 from core.views.admin_poll_view import ongoing_param, ended_param
+from votechain.hyperledger import VotechainNetworkClient
 
 
 def save_vote(candidate, poll, vit):
     """ Saves a cast vote """
-    vote = Vote.objects.create(answer=candidate)
-    token = Trail.generate_token(vote, poll)
+    votechain_client = VotechainNetworkClient()
+    response = votechain_client.cast_vote(poll.id, candidate.name)
+    parsed_response = json.loads(response)
+    token = Trail.generate_token(parsed_response["txId"])
     vit.used = True
-    vote.save()
     vit.save()
     return TokenSerializer(data={"token": token})
 
@@ -156,25 +157,28 @@ class VoterGetVote(generics.CreateAPIView, VoterView):
                 data={"detail": "Voting hasn't ended yet"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-        payload = Trail.decrypt(vvpat)
-        if not payload or not is_vvpat_valid(
-            payload["token"],
-            poll_id,
-            int(payload["poll_id"]),
-            int(payload["vote_id"])
-        ):
+        token = Trail.decrypt(vvpat)
+        if not token:
             return Response(
                 data={"detail": "Token does not exist"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-        vote = Vote.objects.filter(id=payload["vote_id"]).first()
-        if vote is None:
+        votechain_client = VotechainNetworkClient()
+        response = votechain_client.verify_vote(poll_id, token)
+        if response is None:
+            return Response(
+                data={"detail": "Vote not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        parsed_response = json.loads(response)
+        candidate = parsed_response.get("candidate", None)
+        if candidate is None:
             return Response(
                 data={"detail": "Vote not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
         return Response(
-                data=VoteSerializer().to_representation(vote),
+                data={ "candidate_name": candidate },
                 status=status.HTTP_200_OK
             )
 
@@ -197,18 +201,14 @@ class VoterGetResults(generics.RetrieveAPIView, VoterView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         result = []
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT
-                    candidate.id AS candidate_id,
-                    MAX(candidate.name) AS name,
-                    COUNT(vote.id) AS number_of_votes
-                FROM core_vote vote
-                LEFT JOIN core_candidate candidate ON candidate.id = vote.answer_id
-                LEFT JOIN core_poll poll ON poll.id = candidate.poll_id
-                WHERE poll.id = %s
-                GROUP BY candidate.id""", [str(poll.id)])
-            result = [CandidateResult(*row)._asdict() for row in cursor.fetchall()]
+        votechain_client = VotechainNetworkClient()
+        response = votechain_client.get_results(poll_id)
+        if response is None:
+            return Response(
+                data={"detail": "Vote not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        result = json.loads(response)
         http_status = status.HTTP_404_NOT_FOUND if len(result) == 0 else status.HTTP_200_OK
         return Response(
             status=http_status,

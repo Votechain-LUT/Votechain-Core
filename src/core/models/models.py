@@ -107,16 +107,13 @@ def update_voter(sender, instance, **kwargs):
 class Trail(models.Model):
     """ Used to retrieve an associated vote """
     id = models.BigAutoField(primary_key=True)
-    trail_token = models.UUIDField(blank=False, auto_created=True)
-    vote = models.OneToOneField(Vote, on_delete=models.CASCADE, blank=False)
+    trail_token = models.CharField(blank=False, max_length=512)
 
     @staticmethod
-    def generate_token(vote, poll):
+    def generate_token(txid):
         """ generates a token for a given vote """
-        token = uuid.uuid4()
-        entity = Trail.objects.create(vote=vote, trail_token=token)
-        payload = str(entity.trail_token) + '.' + str(poll.id) + '.' + str(entity.vote.id)
-        return Signer().sign(payload)
+        entity = Trail.objects.create(trail_token=txid)
+        return Signer().sign(entity.trail_token)
 
     @staticmethod
     def decrypt(token):
@@ -124,13 +121,8 @@ class Trail(models.Model):
         try:
             payload = Signer().unsign(token)
         except BadSignature:
-            return {}
-        split = payload.split('.')
-        return {
-            "token": split[0],
-            "poll_id": split[1],
-            "vote_id": split[2]
-        }
+            return ""
+        return payload
 
 
 class VoteIdentificationToken(models.Model):
