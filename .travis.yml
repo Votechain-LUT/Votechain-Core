@@ -1,4 +1,4 @@
-# TODO: dodać static code analysis stage.
+# TODO: add static code analysis stage.
 sudo: required
 services: docker
 before_install:

@@ -1,7 +1,7 @@
 """ Module defining serializers for models """
 from django.contrib.auth import get_user_model, password_validation
 from rest_framework import serializers
-from core.models.models import Candidate, Poll, Vote, Voter
+from core.models.models import Candidate, Poll, Voter
 
 
 User = get_user_model()
@@ -45,20 +45,6 @@ class CandidateSerializer(serializers.ModelSerializer):
         model = Candidate
         fields = "__all__"
         depth = 1
-
-
-class VoteSerializer(serializers.ModelSerializer):
-    """ Serializer for vote model """
-    class Meta:
-        model = Vote
-        fields = "__all__"
-        depth = 1
-    answer = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
-    poll = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
-
-    def update(self, instance, validated_data):
-        """ Do not allow updates """
-        return instance
 
 
 class VoterSerializer(serializers.ModelSerializer):

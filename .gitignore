@@ -149,3 +149,12 @@ About
 sawtooth/
 /caddy*
 /src/static/*
+/src/fabric-sdk-py/*
+/src/hfc/*
+
+
+# node js chaincode files
+node_modules/*
+
+# fabric network configuration secrets
+/src/hyperledger/config/*

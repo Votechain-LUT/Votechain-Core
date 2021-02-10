@@ -30,6 +30,7 @@ services:
       - DATABASE_PORT=${DATABASE_PORT}
       - PORT=8000
       - TEST=True
+      - INTEGRATE_BLOCKCHAIN=False
     ports:
       - 8000:8000
     depends_on:

@@ -1,9 +1,11 @@
-version: '3'
+version: '2'
 
 services:
   database:
     container_name: db
     image: mysql:8.0.22
+    networks:
+      - sql_network
     environment:
       - MYSQL_ROOT_PASSWORD=${DATABASE_PASSWORD}
       - MYSQL_USER=${DATABASE_USER}
@@ -15,6 +17,9 @@ services:
 
   backend:
     container_name: core-api
+    networks:
+      - core_votechain_network
+      - sql_network
     build:
       context: ./src
       args:
@@ -35,11 +40,44 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - CORS_FRONTEND=${CORS_FRONTEND}
       - DEBUG=${DEBUG}
+      - INTEGRATE_BLOCKCHAIN=True
     ports:
       - 8000:8000
     volumes:
-      - ./caddy_volume:/data
-      - ./caddy_config:/config
-      - ./src:/usr/src
+      - ./src/core:/usr/src/core
+      - ./src/votechain:/usr/src/votechain
     depends_on:
       - database
+      - orderer.example.com
+      - peer0.org1.example.com
+
+  orderer.example.com:
+    extends:
+      file: src/hyperledger/docker-compose.yml
+      service: orderer.example.com
+
+  peer0.org1.example.com:
+    extends:
+      file: src/hyperledger/docker-compose.yml
+      service: peer0.org1.example.com
+
+  peer1.org1.example.com:
+    extends:
+      file: src/hyperledger/docker-compose.yml
+      service: peer1.org1.example.com
+
+  peer0.org2.example.com:
+    extends:
+      file: src/hyperledger/docker-compose.yml
+      service: peer0.org2.example.com
+
+  peer1.org2.example.com:
+    extends:
+      file: src/hyperledger/docker-compose.yml
+      service: peer1.org2.example.com
+
+networks:
+  core_votechain_network:
+    external: true
+  sql_network:
+    driver: bridge

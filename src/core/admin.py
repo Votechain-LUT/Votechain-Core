@@ -45,6 +45,7 @@ class GetVoterView(generics.RetrieveAPIView):
     ]
     serializer_class = VoterSerializer
 
+
 class ChangePasswordView(generics.UpdateAPIView):
     queryset = Voter.objects.all()
-    peprmission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
