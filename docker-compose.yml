@@ -55,29 +55,41 @@ services:
     extends:
       file: src/hyperledger/docker-compose.yml
       service: orderer.example.com
+    networks:
+      - core_votechain_network
 
   peer0.org1.example.com:
     extends:
       file: src/hyperledger/docker-compose.yml
       service: peer0.org1.example.com
+    networks:
+      - core_votechain_network
 
   peer1.org1.example.com:
     extends:
       file: src/hyperledger/docker-compose.yml
       service: peer1.org1.example.com
+    networks:
+      - core_votechain_network
 
   peer0.org2.example.com:
     extends:
       file: src/hyperledger/docker-compose.yml
       service: peer0.org2.example.com
+    networks:
+      - core_votechain_network
 
   peer1.org2.example.com:
     extends:
       file: src/hyperledger/docker-compose.yml
       service: peer1.org2.example.com
+    networks:
+      - core_votechain_network
 
 networks:
   core_votechain_network:
     external: true
   sql_network:
     driver: bridge
+  hyperledger_dind_network:
+    external: true

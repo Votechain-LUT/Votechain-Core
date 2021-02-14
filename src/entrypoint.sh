@@ -8,6 +8,6 @@ echo "SEED DATA"
 python3 manage.py loaddata --app core core/fixtures/dev_data.json
 
 echo "CREATE HYPERLEDGER FABRIC CHANNEL"
-python3 votechain/startup_channel.py hyperledger/channel
+python3 startup_network.py hyperledger/channel hyperledger-network.json
 echo "STARTING UP HTTP LISTENER"
 python manage.py runserver 0.0.0.0:$PORT
