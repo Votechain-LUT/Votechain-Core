@@ -31,6 +31,11 @@ def update_network_settings(network_config_path):
     """
     Changes peers and orgs urls based on environment variables
     """
+    network_address = os.environ.get("BLOCKCHAIN_NETWORK_ADDRESS", None)
+    if network_address is not None:
+        if os.path.isfile("/etc/hosts"):
+            with open("/etc/hosts", "a") as dns:
+                dns.writelines([network_address + "\torderer.example.com peer0.org1.example.com peer1.org1.example.com peer0.org2.example.com peer1.org2.example.com\n"])
     custom_peers = get_urls_from_env(PEER_PREFIX)
     custom_orderers = get_urls_from_env(ORDERER_PREFIX)
     with open(network_config_path, "r") as network_file:
@@ -39,23 +44,57 @@ def update_network_settings(network_config_path):
             if key.lower() in custom_peers:
                 for endpoint_type in custom_peers[key]:
                     url = custom_peers[key.lower()][endpoint_type]
+                    port = url[url.rfind(":"):]
                     if endpoint_type == "URL":
-                        network["peers"][key]["url"] = url
+                        if network_address is None:
+                            network["peers"][key]["url"] = url
+                        else:
+                            current_address = network["peers"][key]["url"]
+                            port_index = current_address.rfind(":")
+                            address_without_port = current_address if port_index == -1 else current_address[:port_index]
+                            network["peers"][key]["url"] = address_without_port + port
                     elif endpoint_type == "EVENT":
-                        network["peers"][key]["eventUrl"] = url
+                        if network_address is None:
+                            network["peers"][key]["eventUrl"] = url
+                        else:
+                            current_address = network["peers"][key]["eventUrl"]
+                            port_index = current_address.rfind(":")
+                            address_without_port = current_address if port_index == -1 else current_address[:port_index]
+                            network["peers"][key]["eventUrl"] = address_without_port + port
                     elif endpoint_type == "GRPC":
-                        network["peers"][key]["grpcOptions"]["grpc.ssl_target_name_override"] = url
+                        if network_address is None:
+                            network["peers"][key]["grpcOptions"]["grpc.ssl_target_name_override"] = url
+                        else:
+                            current_address = network["peers"][key]["grpcOptions"]["grpc.ssl_target_name_override"]
+                            port_index = current_address.rfind(":")
+                            address_without_port = current_address if port_index == -1 else current_address[:port_index]
+                            network["peers"][key]["grpcOptions"]["grpc.ssl_target_name_override"] = address_without_port + port
         for key in network["orderers"]:
             if key.lower() in custom_orderers:
                 for endpoint_type in custom_orderers[key]:
                     url = custom_orderers[key.lower()][endpoint_type]
+                    port_index = url.rfind(":")
+                    port = "" if port_index == -1 else url[port_index:]
                     if endpoint_type == "URL":
-                        network["orderers"][key]["url"] = url
+                        if network_address is None:
+                            network["orderers"][key]["url"] = url
+                        else:
+                            current_address = network["orderers"][key]["url"]
+                            port_index = current_address.rfind(":")
+                            address_without_port = current_address if port_index == -1 else current_address[:port_index]
+                            network["orderers"][key]["url"] = address_without_port + port
                     elif endpoint_type == "GRPC":
-                        network["orderers"][key]["grpcOptions"]["grpc.ssl_target_name_override"] = url
+                        if network_address is None:
+                            network["orderers"][key]["grpcOptions"]["grpc.ssl_target_name_override"] = url
+                        else:
+                            current_address = network["orderers"][key]["grpcOptions"]["grpc.ssl_target_name_override"]
+                            port_index = current_address.rfind(":")
+                            address_without_port = current_address if port_index == -1 else current_address[:port_index]
+                            network["orderers"][key]["grpcOptions"]["grpc.ssl_target_name_override"] = address_without_port + port
         with open(network_config_path + "_2", "w+") as output_file:
             json.dump(network, output_file)
     shutil.move(network_config_path + "_2", network_config_path)
+    print(str(network))
 
 
 def main(channel_config_path, network_config_path):

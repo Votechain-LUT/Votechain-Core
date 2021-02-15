@@ -3,7 +3,7 @@
 /bin/bash ./await.sh
 
 echo "COLLECT STATIC"
-python3 manage.py collectstatic --noinput --clear
+python3 manage.py collectstatic --noinput --clear > /dev/null
 echo "SEED DATA"
 python3 manage.py loaddata --app core core/fixtures/dev_data.json
 
