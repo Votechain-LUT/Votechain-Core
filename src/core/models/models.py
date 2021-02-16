@@ -9,6 +9,7 @@ from django.db.models import F, Q
 from django.dispatch import receiver
 from django.utils import timezone
 from django.core.signing import Signer, BadSignature
+from votechain.settings import DEFAULT_FROM_EMAIL
 
 
 User = get_user_model()
@@ -159,7 +160,7 @@ Your authorization token is:
         sent = send_mail(
             'Votechain authentication token',
             message,
-            'from@example.com',
+            DEFAULT_FROM_EMAIL,
             [email],
             fail_silently=False,
             connection=connection

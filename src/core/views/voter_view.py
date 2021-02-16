@@ -1,6 +1,7 @@
 """ Module containing views for administration panel """
 
 import json
+from django.core.mail import send_mail
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
@@ -12,6 +13,7 @@ from core.serializers.serializers import PollSerializer, TokenSerializer
 from core.validators import is_vit_valid
 from core.views.admin_poll_view import ongoing_param, ended_param
 from votechain.hyperledger import VotechainNetworkClient
+from votechain.settings import DEFAULT_FROM_EMAIL
 
 
 def save_vote(candidate, poll, vit):
@@ -22,7 +24,23 @@ def save_vote(candidate, poll, vit):
     token = Trail.generate_token(parsed_response["txId"])
     vit.used = True
     vit.save()
-    return TokenSerializer(data={"token": token})
+    return token
+
+
+def send_vvpat(user, poll, vvpat):
+    """ Sends a vote verification token through email """
+    message = """You have participated in a poll titled:
+{0}
+Your Vote Verification Token is:
+{1}
+""".format(poll.title, vvpat)
+    sent = send_mail(
+        "Vote verification token",
+        message,
+        DEFAULT_FROM_EMAIL,
+        [user.email]
+    )
+    return sent > 0
 
 
 class VoterView(generics.GenericAPIView):
@@ -125,9 +143,10 @@ class VoterCastVote(generics.CreateAPIView, VoterView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         vvpat = save_vote(candidate, poll, vit)
+        send_vvpat(request.user, poll, vvpat)
         return Response(
             status=status.HTTP_201_CREATED,
-            data=vvpat.initial_data
+            data={}
         )
 
 class VoterGetVote(generics.CreateAPIView, VoterView):

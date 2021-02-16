@@ -4,7 +4,7 @@ from hfc.fabric import Client
 from hfc.fabric.transaction.tx_proposal_request import CC_TYPE_NODE
 from votechain.settings import INTEGRATE_BLOCKCHAIN
 
-CHANNEL = os.environ.get("CHANNEL_NAME", "businesschannel")
+CHANNEL = "businesschannel"
 CHAINCODE_PATH = os.environ.get("CHAINCODE_PATH", "hyperledger/chaincode")
 GET_RESULTS = "GetResults"
 GET_RESULT = "GetResult"
@@ -34,49 +34,57 @@ class VotechainNetworkClient():
     def _invoke_chaincode(self, poll_id, method_name, params):
         """ Invokes a chaincode function and returns result string (JSON format) """
         if INTEGRATE_BLOCKCHAIN:
-            chaincode_name = self._get_chaincode_name(poll_id)
-            args = [method_name]
-            for param in params:
-                args.append(str(param))
-            return self.loop.run_until_complete(
-                self.cli.chaincode_invoke(
-                    requestor=self.user_org1,
-                    channel_name=CHANNEL,
-                    peers=self.chaincode_peers,
-                    args=args,
-                    cc_name=chaincode_name,
-                    cc_type=CC_TYPE_NODE,
-                    wait_for_event=True
+            try:
+                chaincode_name = self._get_chaincode_name(poll_id)
+                args = [method_name]
+                for param in params:
+                    args.append(str(param))
+                return self.loop.run_until_complete(
+                    self.cli.chaincode_invoke(
+                        requestor=self.user_org1,
+                        channel_name=CHANNEL,
+                        peers=self.chaincode_peers,
+                        args=args,
+                        cc_name=chaincode_name,
+                        cc_type=CC_TYPE_NODE,
+                        wait_for_event=True
+                    )
                 )
-            )
+            except Exception as ex:
+                print(ex)
+                raise ex
         return ""
 
     def add_poll(self, poll_id):
         """ Creates a poll as a new chaincode instance """
         if INTEGRATE_BLOCKCHAIN:
-            chaincode_name = self._get_chaincode_name(poll_id)
-            self.loop.run_until_complete(
-                self.cli.chaincode_install(
+            try:
+                chaincode_name = self._get_chaincode_name(poll_id)
+                self.loop.run_until_complete(
+                    self.cli.chaincode_install(
+                        requestor=self.user_org1,
+                        peers=self.chaincode_peers,
+                        cc_path=CHAINCODE_PATH,
+                        cc_name=chaincode_name,
+                        cc_type=CC_TYPE_NODE,
+                        cc_version=self.chaincode_version
+                    )
+                )
+                return self.loop.run_until_complete(
+                    self.cli.chaincode_instantiate(
                     requestor=self.user_org1,
+                    channel_name=CHANNEL,
                     peers=self.chaincode_peers,
-                    cc_path=CHAINCODE_PATH,
+                    args=[],
                     cc_name=chaincode_name,
+                    cc_version=self.chaincode_version,
                     cc_type=CC_TYPE_NODE,
-                    cc_version=self.chaincode_version
+                    wait_for_event=True # optional, for being sure chaincode is instantiated
+                    )
                 )
-            )
-            return self.loop.run_until_complete(
-                self.cli.chaincode_instantiate(
-                requestor=self.user_org1,
-                channel_name=CHANNEL,
-                peers=self.chaincode_peers,
-                args=[],
-                cc_name=chaincode_name,
-                cc_version=self.chaincode_version,
-                cc_type=CC_TYPE_NODE,
-                wait_for_event=True # optional, for being sure chaincode is instantiated
-                )
-            )
+            except Exception as ex:
+                print(ex)
+                raise ex
         return ""
 
     def add_candidates(self, poll_id, candidates):

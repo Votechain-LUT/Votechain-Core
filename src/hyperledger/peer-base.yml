@@ -17,10 +17,9 @@ services:
       - FABRIC_LOGGING_SPEC=info
       # - CORE_LOGGING_LEVEL=DEBUG
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=core_votechain_network
-      - CORE_PEER_NETWORKID=core_votechain_network
       - CORE_PEER_ADDRESSAUTODETECT=true
       - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=hyperledger_dind_network
       - CORE_PEER_GOSSIP_ORGLEADER=false  # this node is the group leader, default to false
       - CORE_PEER_PROFILE_ENABLED=false
       - CORE_PEER_TLS_ENABLED=true
@@ -44,3 +43,7 @@ services:
       - ./chaincode/:/usr/local/src
       - ./chaincode/:/chaincode/input/src
       - ./chaincode/:/opt/gopath/src/chaincode/
+
+networks:
+  hyperledger_dind_network:
+    external: true

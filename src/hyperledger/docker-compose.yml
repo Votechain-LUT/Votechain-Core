@@ -10,13 +10,12 @@ services:
     container_name: orderer.example.com
     hostname: orderer.example.com
     networks:
-      - core_votechain_network
+      - hyperledger_dind_network
     environment:
       - HLF_VERSION=1.4.6
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
-      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=core_votechain_network
     ports:
-      - "7050:7050"
+      - 7050:7050
     volumes:
     - ./channel/orderer.genesis.block:/var/hyperledger/orderer/orderer.genesis.block
     - ./config/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
@@ -30,8 +29,9 @@ services:
     container_name: peer0.org1.example.com
     hostname: peer0.org1.example.com
     networks:
-      - core_votechain_network
+      - hyperledger_dind_network
     environment:
+      - DOCKER_HOST=tcp://0.0.0.0:2756
       - CORE_PEER_ID=peer0.org1.example.com
       - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
@@ -54,7 +54,7 @@ services:
     container_name: peer1.org1.example.com
     hostname: peer1.org1.example.com
     networks:
-      - core_votechain_network
+      - hyperledger_dind_network
     environment:
       - CORE_PEER_ID=peer1.org1.example.com
       - CORE_PEER_ADDRESS=peer1.org1.example.com:7051
@@ -79,7 +79,7 @@ services:
     container_name: peer0.org2.example.com
     hostname: peer0.org2.example.com
     networks:
-      - core_votechain_network
+      - hyperledger_dind_network
     environment:
       - CORE_PEER_ID=peer0.org2.example.com
       - CORE_PEER_ADDRESS=peer0.org2.example.com:7051
@@ -104,7 +104,7 @@ services:
     container_name: peer1.org2.example.com
     hostname: peer1.org2.example.com
     networks:
-      - core_votechain_network
+      - hyperledger_dind_network
     environment:
       - CORE_PEER_ID=peer1.org2.example.com
       - CORE_PEER_ADDRESS=peer1.org2.example.com:7051
@@ -123,5 +123,5 @@ services:
       - 10053:7053
 
 networks:
-  core_votechain_network:
+  hyperledger_dind_network:
     external: true
