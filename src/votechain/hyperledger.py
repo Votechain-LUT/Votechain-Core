@@ -4,7 +4,7 @@ from hfc.fabric import Client
 from hfc.fabric.transaction.tx_proposal_request import CC_TYPE_NODE
 from votechain.settings import INTEGRATE_BLOCKCHAIN
 
-CHANNEL = os.environ.get("CHANNEL_NAME", "businesschannel")
+CHANNEL = "businesschannel"
 CHAINCODE_PATH = os.environ.get("CHAINCODE_PATH", "hyperledger/chaincode")
 GET_RESULTS = "GetResults"
 GET_RESULT = "GetResult"
