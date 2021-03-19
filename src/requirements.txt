@@ -28,7 +28,7 @@ inflection==0.5.1
 iniconfig==1.1.1
 isort==5.6.4
 itypes==1.2.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 lark-parser==0.7.1
 lazy-object-proxy==1.4.3
 Markdown==3.3.3
